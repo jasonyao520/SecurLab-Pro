@@ -1,0 +1,65 @@
+! ==========================================================
+! SecurLab Pro - Partie 1
+! Equipement : SW1 (switch L2)
+! Image IOS  : L2-ADVENTERPRISE-M-15.1-20140814
+! Role       : creation des VLAN, ports access, trunk vers R1
+! ==========================================================
+
+enable
+configure terminal
+hostname SW1
+
+! ---------- 1) Creation des VLAN ----------
+vlan 10
+ name RH
+vlan 20
+ name IT
+vlan 30
+ name SERVEUR
+vlan 40
+ name MANAGEMENT
+exit
+
+! ---------- 2) Allocation des ports par VLAN (mode access) ----------
+! Un poste branche sur un de ces ports appartient automatiquement
+! au bon VLAN, sans aucune configuration supplementaire.
+
+! VLAN 10 - RH : Et0/1 a Et0/3
+interface range Ethernet0/1 - 3
+ switchport mode access
+ switchport access vlan 10
+ exit
+
+! VLAN 20 - IT : Et1/0 a Et1/3
+interface range Ethernet1/0 - 3
+ switchport mode access
+ switchport access vlan 20
+ exit
+
+! VLAN 30 - SERVEUR : Et2/0 a Et2/3
+interface range Ethernet2/0 - 3
+ switchport mode access
+ switchport access vlan 30
+ exit
+
+! VLAN 40 - MANAGEMENT : Et3/0 a Et3/3
+interface range Ethernet3/0 - 3
+ switchport mode access
+ switchport access vlan 40
+ exit
+
+! ---------- 3) Trunk 802.1Q vers le routeur R1 ----------
+interface Ethernet0/0
+ description TRUNK vers R1 (e0/0)
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20,30,40
+ no shutdown
+ exit
+
+end
+write memory
+
+! ---------- Verifications ----------
+! show vlan brief
+! show interfaces trunk

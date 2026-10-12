@@ -1,0 +1,76 @@
+! ==========================================================
+! SecurLab Pro - Partie 1
+! Equipement : R1 (routeur L3)
+! Image IOS  : L3-ADVENTERPRISE9-15.5.2T
+! Role       : sous-interfaces (router-on-a-stick) + DHCP (VLAN 20, 30, 40)
+! ==========================================================
+
+enable
+configure terminal
+hostname R1
+
+! ---------- 1) Interface physique (cote trunk) ----------
+interface Ethernet0/0
+ description TRUNK vers SW1 (e0/0)
+ no ip address
+ no shutdown
+ exit
+
+! ---------- 2) Sous-interfaces : une par VLAN = passerelle du VLAN ----------
+interface Ethernet0/0.10
+ description VLAN 10 - RH
+ encapsulation dot1Q 10
+ ip address 172.16.10.1 255.255.255.0
+ exit
+
+interface Ethernet0/0.20
+ description VLAN 20 - IT
+ encapsulation dot1Q 20
+ ip address 172.16.20.1 255.255.255.0
+ exit
+
+interface Ethernet0/0.30
+ description VLAN 30 - SERVEUR
+ encapsulation dot1Q 30
+ ip address 172.16.30.1 255.255.255.0
+ exit
+
+interface Ethernet0/0.40
+ description VLAN 40 - MANAGEMENT
+ encapsulation dot1Q 40
+ ip address 172.16.40.1 255.255.255.0
+ exit
+
+! ---------- 3) DHCP ----------
+! VLAN 10 (RH) : PAS de pool DHCP sur le routeur.
+! Son DHCP sera assure par le serveur Windows (AD) dans la partie suivante.
+! Le routeur reste quand meme la passerelle du VLAN 10 (172.16.10.1).
+!
+! VLAN 20, 30 et 40 : DHCP assure par le routeur.
+! Adresses reservees (passerelle et equipements fixes) : .1 a .10
+ip dhcp excluded-address 172.16.20.1 172.16.20.10
+ip dhcp excluded-address 172.16.30.1 172.16.30.10
+ip dhcp excluded-address 172.16.40.1 172.16.40.10
+
+ip dhcp pool IT
+ network 172.16.20.0 255.255.255.0
+ default-router 172.16.20.1
+ exit
+
+ip dhcp pool SERVEUR
+ network 172.16.30.0 255.255.255.0
+ default-router 172.16.30.1
+ exit
+
+ip dhcp pool MANAGEMENT
+ network 172.16.40.0 255.255.255.0
+ default-router 172.16.40.1
+ exit
+
+end
+write memory
+
+! ---------- Verifications ----------
+! show ip interface brief
+! show ip dhcp pool
+! show ip dhcp binding
