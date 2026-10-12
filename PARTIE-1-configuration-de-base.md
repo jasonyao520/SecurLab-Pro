@@ -167,4 +167,4 @@ Voir l'[index du dépôt](README.md). Chaque partie a son propre fichier.
 
 ## Auteure
 
-**Caroline**, étudiante en Réseaux et Sécurité.
+**Samuel**, étudiante en Réseaux et Sécurité.
